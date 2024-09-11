@@ -9,6 +9,8 @@ import { User, UserDocument } from 'src/users/schema/user-schema';
 import { UsersService } from 'src/users/users.service';
 import { access } from 'fs';
 import { IsGoogleUser } from 'src/enum/google.enum';
+import { OtpService } from 'src/otp/otp.service';
+import { EmailType } from 'src/enum/otpType.enum';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +18,7 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly userService: UsersService,
     private readonly jwtTokens: JwtTokens,
+    private readonly otpService: OtpService
   ) {}
 
   async registerUser(payload: UserSignUpDto, res: Response) {
@@ -26,13 +29,18 @@ export class AuthService {
       user.role,
       res,
     );
+
+      await this.otpService.sendOtp({email: user.email, type: EmailType.VERIFY_USER, name: user.name})
+      await this.checkUserVerification(user.id)
+
     const userObject = user.toObject();
     delete userObject.password;
     delete userObject.refreshToken;
 
     return {
       userObject,
-      getTokens
+      getTokens,
+      message: `Verification code has been sent to ${user.email}`
     };
   }
 
@@ -164,4 +172,18 @@ export class AuthService {
       }
     }
   }
+
+   async  checkUserVerification(userId?: string, status?: string) {
+        let timer = setTimeout(async () => {
+            const user = await this.userModel.findById(userId)
+          if (user && !user.isVerified) {
+            await this.userModel.findByIdAndDelete(userId)
+            console.log(`user ${user.email} was delete due to lack of verification`)
+            }
+        }, 30000)
+      
+      if (status === 'verified') {
+        clearTimeout(timer)
+      }
+    }
 }

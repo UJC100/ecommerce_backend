@@ -7,7 +7,7 @@ import { UserRoleEnum } from "src/enum/userRole.enum";
 
 export type UserDocument = HydratedDocument<User>
 
-@Schema()
+@Schema({timestamps: true})
 export class User {
   @Prop({ required: true })
   name: string;
@@ -18,14 +18,17 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop({enum: IsGoogleUser, default: IsGoogleUser.FALSE})
+  @Prop({ enum: IsGoogleUser, default: IsGoogleUser.FALSE })
   isGoogle: string;
 
-  @Prop({default: null})
+  @Prop({ default: null })
   refreshToken: string;
 
   @Prop({ enum: UserRoleEnum, default: UserRoleEnum.USER })
   role: string;
+
+  @Prop({ default: false })
+  isVerified: boolean;
 }
 
 export const user = SchemaFactory.createForClass(User)
