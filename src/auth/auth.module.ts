@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
@@ -15,6 +15,7 @@ import { OtpModule } from 'src/otp/otp.module';
 import { OtpService } from 'src/otp/otp.service';
 import { Otp, otpSchema } from 'src/otp/schema/otp.schema';
 import { MailModule } from 'src/mail/mail.module';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { MailModule } from 'src/mail/mail.module';
       { name: Otp.name, schema: otpSchema },
     ]),
     UsersModule,
-    OtpModule,
+    forwardRef(() => OtpModule),
     MailModule
   ],
   controllers: [AuthController],
@@ -38,8 +39,7 @@ import { MailModule } from 'src/mail/mail.module';
     JwtTokens,
     AtStrategy,
     RtStrategy,
-    GoogleStrategy,
-    OtpService,
+    GoogleStrategy
   ],
   exports: [AuthService],
 })

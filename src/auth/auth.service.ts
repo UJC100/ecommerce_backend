@@ -176,14 +176,17 @@ export class AuthService {
    async  checkUserVerification(userId?: string, status?: string) {
         let timer = setTimeout(async () => {
             const user = await this.userModel.findById(userId)
-          if (user && !user.isVerified) {
+          if (user && user.isVerified === false) {
+            console.log(user)
             await this.userModel.findByIdAndDelete(userId)
             console.log(`user ${user.email} was delete due to lack of verification`)
-            }
-        }, 30000)
+          }
+          return timer
+        }, 60000)
       
       if (status === 'verified') {
         clearTimeout(timer)
+        console.log(`timer cleared`)
       }
     }
 }
