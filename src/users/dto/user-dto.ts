@@ -16,6 +16,10 @@ export class UserSignUpDto {
     @IsString()
     @IsNotEmpty()
     name: string;
+
+    @IsString()
+    @IsNotEmpty()
+    phoneNumber: string;
 }
 
 

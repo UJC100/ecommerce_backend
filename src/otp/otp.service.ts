@@ -11,6 +11,8 @@ import { User, UserDocument } from 'src/users/schema/user-schema';
 import { AuthService } from 'src/auth/auth.service';
 import { WelcomeEmailTemplate } from 'src/mail/templates/welcomeEmail';
 import { EmailSubject } from 'src/enum/subject.enum';
+import { SmsService } from 'src/sms/sms.service';
+import { ForgotPassword } from 'src/mail/templates/forgotPassword';
 
 @Injectable()
 export class OtpService {
@@ -20,6 +22,7 @@ export class OtpService {
     private readonly mailService: MailService,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    private readonly smsService: SmsService
   ) {}
 
   async createOtp(payload: CreateOtpDto) {
@@ -36,10 +39,13 @@ export class OtpService {
   }
 
   async sendOtp(payload: SendOtpDto) {
-    const { email, type, name } = payload;
+    const { email, type, name, phoneNumber } = payload;
 
     const code = BaseHelper.generateOtp();
+    const encryption_key = BaseHelper.generateKey();
+    console.log(encryption_key)
 
+    let smsMessage = `Thank you for choosing us. To proceed use this verification pin: ${code}`
     let template: string;
     let subject: string;
 
@@ -48,12 +54,17 @@ export class OtpService {
         template = VerifyEmailTemplate(code, name);
         subject = EmailSubject.EMAIL_VERIFICATION;
         break;
+      case EmailType.FORGOT_PASSWORD:
+        template = ForgotPassword(code, encryption_key);
+        subject = EmailSubject.CHANGE_PASSWORD;
+        break;
     }
 
     await this.createOtp({
       email,
       type,
       code,
+      encryptionKey: encryption_key,
     });
 
     if (!code)
@@ -61,6 +72,7 @@ export class OtpService {
         `Unable to generate otp. Please try again later`,
       );
 
+    // await this.smsService.sendSms(phoneNumber, smsMessage)g
     await this.mailService.sendMails(email, template, subject);
   }
 
@@ -87,5 +99,11 @@ export class OtpService {
     return {
       message: `Verification successful`,
     };
+  }
+
+
+  async extractKey(email: string) {
+    const findOtp = await this.otpModel.findOne({ email })
+    return findOtp
   }
 }

@@ -8,6 +8,7 @@ import { User, user } from 'src/users/schema/user-schema';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { SmsModule } from 'src/sms/sms.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { AuthModule } from 'src/auth/auth.module';
     ]),
     MailModule,
     UsersModule,
-    forwardRef(() => AuthModule)
+    forwardRef(() => AuthModule),
+    SmsModule
   ],
   controllers: [OtpController],
   providers: [OtpService],

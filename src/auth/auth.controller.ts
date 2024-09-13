@@ -1,10 +1,18 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserLoginDto, UserSignUpDto } from 'src/users/dto/user-dto';
 import { Response, Request } from 'express';
 import { JwtRefreshTokenGuard } from './jwt-auth/jwtRt.guard';
 import { AuthGuard } from '@nestjs/passport';
-
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/PasswordChange-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -38,8 +46,20 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleLogin(@Req() req: Request, @Res({passthrough: true}) res: Response) {
-      return this.authService.googleLogin(req, res)
-     }
-    
+  async googleLogin(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.googleLogin(req, res);
+  }
+
+  @Post('forgotPassword')
+  async forgotPassword(@Body() payload: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(payload);
+  }
+
+  @Post('resetPassword')
+  async resetPassword(@Body() payload: ResetPasswordDto) {
+    return await this.authService.resetPassword(payload);
+  }
 }

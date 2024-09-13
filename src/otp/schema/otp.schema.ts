@@ -13,8 +13,11 @@ export class Otp {
   @Prop({ required: true, unique: true })
   code: number;
 
-  @Prop({ required: true, unique: true })
-  email: string;
+  @Prop({ unique: true })
+  email?: string;
+
+  @Prop({ unique: true })
+  encryptionKey?: string;
 
   @Prop({ default: new Date() })
   createdAt: Date;

@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { EmailType } from 'src/enum/otpType.enum';
 
 export class CreateOtpDto {
@@ -10,6 +10,10 @@ export class CreateOtpDto {
 
   @IsNumber()
   code: number;
+
+  @IsString()
+  @IsOptional()
+  encryptionKey: string;
 }
 
 export class SendOtpDto {
@@ -21,6 +25,10 @@ export class SendOtpDto {
 
   @IsString()
   name: string;
+
+  @IsString()
+  phoneNumber?: string;
+
 }
 
 
